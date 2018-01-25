@@ -251,7 +251,7 @@ class jpeg:
 			#print "%x" % hdr
 			if hdr == 0xffd8:
 				lenchunk = 2
-		        elif hdr == 0xffd9:
+			elif hdr == 0xffd9:
 				return
 			else:
 				lenchunk, = unpack(">H", data[2:4])
@@ -259,13 +259,13 @@ class jpeg:
 				lenchunk+=2
 				chunk = data[4:lenchunk]
 											
-			        if hdr == 0xffdb:
+				if hdr == 0xffdb:
 					self.DefineQuantizationTables(chunk)
-			        elif hdr == 0xffc0:
+				elif hdr == 0xffc0:
 					self.BaselineDCT(chunk)
-			        elif hdr == 0xffc4:
+				elif hdr == 0xffc4:
 					self.DefineHuffmanTables(chunk)
-			        elif hdr == 0xffda:
+				elif hdr == 0xffda:
 					lenchunk = self.StartOfScan(data, lenchunk)
 			
 			data = data[lenchunk:]
@@ -278,7 +278,7 @@ w = Canvas(master, width=1600, height=600)
 w.pack()
 
 j = jpeg()
-#j.decode(open('images/huff_simple0.jpg', 'r').read())
-#j.decode(open('images/surfer.jpg', 'r').read())
-j.decode(open('images/porsche.jpg', 'r').read())
+#j.decode(open('images/huff_simple0.jpg', 'rb').read())
+#j.decode(open('images/surfer.jpg', 'rb').read())
+j.decode(open('images/porsche.jpg', 'rb').read())
 mainloop()
