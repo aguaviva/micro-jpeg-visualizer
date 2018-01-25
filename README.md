@@ -2,7 +2,7 @@
 
 ##Intro
 
-This a a JPEG visualizer in just ~~280~~ 250 lines in easy to read python code.
+This a a JPEG visualizer in just ~~280~~ 250 lines in easy to read Python 3.0 code.
 
 ##Features
 
