@@ -17,12 +17,12 @@ zigzag = [0,  1,  8, 16,  9,  2,  3, 10,
 def Clamp(col):
 	col = 255 if col>255 else col
 	col = 0 if col<0 else col
-	return  col
+	return  int(col)
 
 def HexDump(data):
 	for i in range(len(data)):
 		b, = unpack("B",data[i:i+1])		
-		print "%2x " % b,
+		print("%02x " % b),
 
 def ColorConversion(Y, Cr, Cb):
 	R = Cr*(2-2*.299) + Y
@@ -34,7 +34,8 @@ def GetArray(type,l, length):
 	s = ""
 	for i in range(length):
 		s =s+type
-	return	list(unpack(s,l[:length]))
+	return list(unpack(s,l[:length]))
+
 
 def DecodeNumber(code, bits):
 	l = 2**(code-1)
@@ -46,7 +47,7 @@ def DecodeNumber(code, bits):
 def PrintMatrix( m):
 	for j in range(8):
 		for i in range(8):
-			print "%2f" % m[i+j*8],
+			print("%2f" % m[i+j*8]),
 		print
 	print
 
@@ -105,7 +106,7 @@ class Stream:
 		self.pos = 0
 
 	def GetBit(self):
-		b, = unpack("B",self.data[self.pos >> 3])
+		b = self.data[self.pos >> 3]
 		s = 7-(self.pos & 0x7)
 		self.pos+=1		
 		return (b >> s) & 1
@@ -197,8 +198,8 @@ class jpeg:
 		st = Stream(data)
 
 		oldlumdccoeff, oldCbdccoeff, oldCrdccoeff = 0, 0, 0
-		for y in range(self.height/8):
-			for x in range(self.width/8):
+		for y in range(self.height//8):
+			for x in range(self.width//8):
 				#print "MCU:", x,y
 				matL, oldlumdccoeff = self.BuildMatrix(st,0, self.quant[self.quantMapping[0]], oldlumdccoeff)
 				matCr, oldCrdccoeff = self.BuildMatrix(st,1, self.quant[self.quantMapping[1]], oldCrdccoeff)
@@ -218,7 +219,7 @@ class jpeg:
 
 	def BaselineDCT(self, data):
 		hdr, self.height, self.width, components = unpack(">BHHB",data[0:6])
-		print "size %ix%i" % (self.width,  self.height)
+		print("size %ix%i" % (self.width,  self.height))
 
 		for i in range(components):
 			id, samp, QtbId = unpack("BBB",data[6+i*3:9+i*3])
@@ -248,17 +249,14 @@ class jpeg:
 	def decode(self, data):	
 		while(True):
 			hdr, = unpack(">H", data[0:2])
-			#print "%x" % hdr
 			if hdr == 0xffd8:
 				lenchunk = 2
 			elif hdr == 0xffd9:
 				return
 			else:
 				lenchunk, = unpack(">H", data[2:4])
-				#print lenchunk
 				lenchunk+=2
 				chunk = data[4:lenchunk]
-											
 				if hdr == 0xffdb:
 					self.DefineQuantizationTables(chunk)
 				elif hdr == 0xffc0:
@@ -272,13 +270,12 @@ class jpeg:
 			if len(data)==0:
 				break		
 
-from Tkinter import *
+from tkinter import *
 master = Tk()
 w = Canvas(master, width=1600, height=600)
 w.pack()
 
-j = jpeg()
-#j.decode(open('images/huff_simple0.jpg', 'rb').read())
-#j.decode(open('images/surfer.jpg', 'rb').read())
-j.decode(open('images/porsche.jpg', 'rb').read())
+#jpeg().decode(open('images/huff_simple0.jpg', 'rb').read())
+#jpeg().decode(open('images/surfer.jpg', 'rb').read())
+jpeg().decode(open('images/porsche.jpg', 'rb').read())
 mainloop()
