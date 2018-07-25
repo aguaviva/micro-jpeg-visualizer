@@ -1,10 +1,10 @@
 # micro-jpeg-visualizer
 
-##Intro
+## Intro
 
 This a a JPEG visualizer in just ~~280~~ 250 lines in easy to read Python 3.0 code.
 
-##Features
+## Features
 
 - No external libraries were used
 - Friendly code can be easily ported to any other languages and embedded devices
@@ -15,7 +15,7 @@ This a a JPEG visualizer in just ~~280~~ 250 lines in easy to read Python 3.0 co
 
 Feel free to drop me a mail if you find this useful :-)
 
-##Funny Facts
+## Funny Facts
 
 - I used notepad and debugged it using print's
 - I used python because it was the handiest thing I had
@@ -24,7 +24,7 @@ Feel free to drop me a mail if you find this useful :-)
 - the most difficult part was handling the run length encoding that I had to reverse engineer myself.
 - What an amazing feeling to see such a simple piece of code displaying a pic!
 
-##Credits
+## Credits
 
 by Raul Aguaviva
 
