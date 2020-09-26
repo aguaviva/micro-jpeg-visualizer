@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # Written by Raul Aguaviva as an exercise
-# beware not optimized for speed or clarity :-)
+# beware not optimized for speed :-)
 
 from struct import *
 import math 
@@ -36,7 +36,6 @@ def GetArray(type,l, length):
 		s =s+type
 	return list(unpack(s,l[:length]))
 
-
 def DecodeNumber(code, bits):
 	l = 2**(code-1)
 	if bits>=l:
@@ -53,12 +52,6 @@ def PrintMatrix( m):
 
 def XYtoLin(x,y):
 	return x+y*8
-
-def DrawMatrix(x, y, matL, matCb,matCr):
-	for yy in range(8):
-		for xx in range(8):
-			c = "#%02x%02x%02x" % ColorConversion( matL[XYtoLin(xx,yy)] , matCb[XYtoLin(xx,yy)], matCr[XYtoLin(xx,yy)])
-			w.create_rectangle((x*8+xx)*2, (y*8+yy)*2, (x*8+(xx+1))*2, (y*8+(yy+1))*2, fill=c,outline= c)
 
 def RemoveFF00(data):
 	datapro = []
@@ -86,8 +79,8 @@ class IDCT:
 	def AddIDC(self, n,m, coeff):
 		an = self.NormCoeff(n)
 		am = self.NormCoeff(m)
-				
-		for y in range(0,8):			
+
+		for y in range(0,8):
 			for x in range(0,8):
 				nn = an*math.cos( n* math.pi * (x +.5)/8.0 )
 				mm = am*math.cos( m* math.pi * (y +.5)/8.0 )
@@ -167,6 +160,7 @@ class jpeg:
 		self.tables = {}
 		self.width = 0
 		self.height = 0
+		self.image = []
 
 	def BuildMatrix(self, st, idx, quant, olddccoeff):	
 		i = IDCT()	
@@ -182,11 +176,11 @@ class jpeg:
 				break
 			if code >15:
 				l+= (code>>4)
-				code = code & 0xf	
+				code = code & 0xf
 			
 			bits = st.GetBitN( code )
 
-			if l<64:						
+			if l<64:
 				coeff  =  DecodeNumber(code, bits) 
 				i.AddZigZag(l,coeff * quant[l])
 				l+=1
@@ -200,12 +194,14 @@ class jpeg:
 		oldlumdccoeff, oldCbdccoeff, oldCrdccoeff = 0, 0, 0
 		for y in range(self.height//8):
 			for x in range(self.width//8):
-				#print "MCU:", x,y
+				# decode 8x8 block
 				matL, oldlumdccoeff = self.BuildMatrix(st,0, self.quant[self.quantMapping[0]], oldlumdccoeff)
 				matCr, oldCrdccoeff = self.BuildMatrix(st,1, self.quant[self.quantMapping[1]], oldCrdccoeff)
 				matCb, oldCbdccoeff = self.BuildMatrix(st,1, self.quant[self.quantMapping[2]], oldCbdccoeff)
-				DrawMatrix(x, y, matL.base, matCb.base, matCr.base )	
-				#PrintMatrix(matL.base)
+				# store it as RGB
+				for yy in range(8):
+					for xx in range(8):
+						self.image[(x*8+xx) + ((y*8+yy) * self.width)] = ColorConversion( matL.base[XYtoLin(xx,yy)] , matCb.base[XYtoLin(xx,yy)], matCr.base[XYtoLin(xx,yy)])
 		
 		return lenchunk +hdrlen
 
@@ -220,6 +216,7 @@ class jpeg:
 	def BaselineDCT(self, data):
 		hdr, self.height, self.width, components = unpack(">BHHB",data[0:6])
 		print("size %ix%i" % (self.width,  self.height))
+		self.image = [0] * (self.width * self.height);
 
 		for i in range(components):
 			id, samp, QtbId = unpack("BBB",data[6+i*3:9+i*3])
@@ -230,7 +227,6 @@ class jpeg:
 			off = 0
 			hdr, = unpack("B",data[off:off+1])
 			off+=1
-			#print hdr	
 
 			lengths = GetArray("B", data[off:off+16],16) 
 			off += 16
@@ -252,7 +248,7 @@ class jpeg:
 			if hdr == 0xffd8:
 				lenchunk = 2
 			elif hdr == 0xffd9:
-				return
+				break
 			else:
 				lenchunk, = unpack(">H", data[2:4])
 				lenchunk+=2
@@ -269,13 +265,12 @@ class jpeg:
 			data = data[lenchunk:]
 			if len(data)==0:
 				break		
+		return (self.width, self.height, self.image)
 
-from tkinter import *
-master = Tk()
-w = Canvas(master, width=1600, height=600)
-w.pack()
+width, height, image = jpeg().decode(open('images/porsche.jpg', 'rb').read())
 
-#jpeg().decode(open('images/huff_simple0.jpg', 'rb').read())
-#jpeg().decode(open('images/surfer.jpg', 'rb').read())
-jpeg().decode(open('images/porsche.jpg', 'rb').read())
-mainloop()
+#show image
+from PIL import Image 
+img = Image.new("RGB", (width, height))
+img.putdata(image) 
+img.show() 
