@@ -99,13 +99,13 @@ class Stream:
 		self.pos = 0
 
 	def GetBit(self):
-		b = self.data[self.pos >> 3]
+		b = ord(self.data[self.pos >> 3])
 		s = 7-(self.pos & 0x7)
-		self.pos+=1		
+		self.pos+=1
 		return (b >> s) & 1
 
 	def GetBitN(self, l):
-		val = 0;
+		val = 0
 		for i in range(l):
 			val = val*2 + self.GetBit()
 		return val
@@ -236,7 +236,7 @@ class jpeg:
 				elements+= (GetArray("B", data[off:off+i], i))
 				off = off+i 
 
-			hf = HuffmanTable();
+			hf = HuffmanTable()
 			hf.GetHuffmanBits( lengths, elements)
 			self.tables[hdr] = hf
 
