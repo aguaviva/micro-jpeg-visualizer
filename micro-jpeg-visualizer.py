@@ -216,7 +216,7 @@ class jpeg:
 	def BaselineDCT(self, data):
 		hdr, self.height, self.width, components = unpack(">BHHB",data[0:6])
 		print("size %ix%i" % (self.width,  self.height))
-		self.image = [0] * (self.width * self.height);
+		self.image = [0] * (self.width * self.height)
 
 		for i in range(components):
 			id, samp, QtbId = unpack("BBB",data[6+i*3:9+i*3])
